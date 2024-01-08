@@ -3,8 +3,8 @@ import { resolve } from "path";
 import pkg from "./package.json";
 import { warpperEnv } from "./build";
 import { getPluginsList } from "./build/plugins";
-import { include, exclude } from "./build/optimize";
-import { UserConfigExport, ConfigEnv, loadEnv } from "vite";
+import { exclude, include } from "./build/optimize";
+import { ConfigEnv, loadEnv, UserConfigExport } from "vite";
 
 /** 当前执行node命令时文件夹的地址（工作目录） */
 const root: string = process.cwd();
@@ -27,8 +27,7 @@ const __APP_INFO__ = {
 };
 
 export default ({ command, mode }: ConfigEnv): UserConfigExport => {
-  const { VITE_CDN, VITE_PORT, VITE_COMPRESSION, VITE_PUBLIC_PATH } =
-    warpperEnv(loadEnv(mode, root));
+  const { VITE_CDN, VITE_PORT, VITE_COMPRESSION, VITE_PUBLIC_PATH } = warpperEnv(loadEnv(mode, root));
   return {
     base: VITE_PUBLIC_PATH,
     root,
@@ -44,7 +43,12 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
       host: "0.0.0.0",
       // 本地跨域代理 https://cn.vitejs.dev/config/server-options.html#server-proxy
       proxy: {
-        "/api": "http://localhost:26666"
+        //"/api": "http://localhost:26666"
+        "/api": {
+          target: "https://xfyl.dearbo.top",
+          changeOrigin: true,
+          rewrite: (p) => p.replace(/^\/api/, "auto-plan-api")
+        }
       }
     },
     plugins: getPluginsList(command, VITE_CDN, VITE_COMPRESSION),
